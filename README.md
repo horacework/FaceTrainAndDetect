@@ -34,7 +34,7 @@ Compiling Opencv_Contrib is more complex, see [opencv/opencv_contrib](https://gi
 
 ## Reference
 
-[OpenCVʵ��֮·��������ʶ��֮��ģ��ѵ��](http://blog.csdn.net/xingchenbingbuyu/article/details/51407336)
+[OpenCV实践之路——人脸识别之二模型训练](http://blog.csdn.net/xingchenbingbuyu/article/details/51407336)
 
 
 ## Licence
