@@ -9,17 +9,22 @@ Training and detecting facial models base on Opencv
 * OpenCV 3.0(with opencv_contrib) or later
 * Microsoft Visual Studio 2015
 
-In my repository, folder [ORLface]() contains facial samples of 40 people (each person has 10 picture samples).
+In my test, folder [ORLface]() contains facial samples of 40 people (each person has 10 picture samples).
+
 You can train your own samples by placing the samples in the specified folder and editing the file at.txt.(This process is not reasonable and will be improved later)
 
 ## Progress
 
 * 2017-07-01 The code can train the model successfully. Through the test, the models is available.
+* 2017-07-02 Improved the logic of loading facial samples. The directory structure such as -->SampleDIR-->label(int)-->xxx.bmp
+
 
 ## Usage
 
 * Click the *.sln file
+
 * Configure the Opencv environment
+
 * F5 Run !
 
 
@@ -28,9 +33,11 @@ You can train your own samples by placing the samples in the specified folder an
 Compiling Opencv_Contrib is more complex, see [opencv/opencv_contrib](https://github.com/opencv/opencv_contrib)
 
 ## Reference
-[OpenCVÊµ¼ùÖ®Â·¡ª¡ªÈËÁ³Ê¶±ðÖ®¶þÄ£ÐÍÑµÁ·](http://blog.csdn.net/xingchenbingbuyu/article/details/51407336)
+
+[OpenCVÊµï¿½ï¿½Ö®Â·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¶ï¿½ï¿½Ö®ï¿½ï¿½Ä£ï¿½ï¿½Ñµï¿½ï¿½](http://blog.csdn.net/xingchenbingbuyu/article/details/51407336)
 
 
 ## Licence
-[MIT]()
+
+[MIT](https://github.com/horacework/FaceTrainAndDetect/blob/master/LICENSE)
 

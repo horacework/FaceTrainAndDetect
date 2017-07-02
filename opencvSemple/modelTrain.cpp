@@ -7,6 +7,8 @@
 #include <fstream>  
 #include <sstream>  
 #include <math.h> 
+#include <direct.h>
+#include <io.h>
 
 using namespace std;
 using namespace cv;
@@ -39,9 +41,56 @@ void read_csv(const string& filename, vector<Mat>& images, vector<int>& labels, 
 	}
 }
 
+void readDirImageAndLabel (const string& path, string label, vector<Mat>& images, vector<int>& labels) {
+	_finddata_t file;
+	long lf;
+	string p,tempPath;
+	if ((lf = _findfirst(p.assign(path).append("\\").append(label).append("\\*").c_str(), &file)) == -1) {
+		cout << path << " not found!!!" << endl;
+	}
+	else {
+		while (_findnext(lf, &file) == 0) {
+			//输出文件名
+			if (strcmp(file.name, ".") != 0 && strcmp(file.name, "..") != 0) {
+				cout <<"已载入文件： "<< file.name << endl;
+				images.push_back(imread(tempPath.assign(path).append("\\").append(label).append("\\").append(file.name), 0));
+				labels.push_back(atoi(label.c_str()));
+			}
+		}
+	}
+	_findclose(lf);
+}
+
+void loadImageAndLabel(const string& path, vector<Mat>& images, vector<int>& labels) {
+
+	_finddata_t file;
+	long lf;
+	string p;
+	//输入文件夹路径  
+	if ((lf = _findfirst(p.assign(path).append("\\*").c_str(), &file)) == -1) {
+		cout << path << " not found!!!" << endl;
+	}
+	else {
+		while (_findnext(lf, &file) == 0) {
+			//输出文件名
+			//获取所有样本文件夹(文件夹名字必须为整形数字)
+			if (strcmp(file.name, ".")==0 | strcmp(file.name, "..") == 0) {
+				continue;
+				//cout<<file.name<<endl;
+			}
+			cout <<"文件夹  =======  "<< file.name << endl;
+			readDirImageAndLabel(path, file.name, images, labels);
+			//files.push_back(file.name);
+		}
+	}
+	_findclose(lf);
+	
+}
+
 void modelTrain::Action()
 {
 	string fn_csv = "C:/Users/Administrator/Documents/visual studio 2015/Projects/opencvSemple/ORLface/at.txt";
+	string str = "C:\\Users\\Administrator\\Documents\\visual studio 2015\\Projects\\opencvSemple\\ORLface2";
 	vector<Mat> images;
 	vector<int> labels;
 	//用clock()来计时  毫秒    
@@ -49,7 +98,8 @@ void modelTrain::Action()
 	
 	try
 	{
-		read_csv(fn_csv, images, labels);
+		//read_csv(fn_csv, images, labels);
+		loadImageAndLabel(str, images, labels);
 	}
 	catch (cv::Exception& e)
 	{
@@ -109,4 +159,12 @@ void modelTrain::Action()
 	//waitKey(0);
 }
 
+void modelTrain::Test() {
+	vector<Mat> images;
+	vector<int> labels;
+	string str = "C:\\Users\\Administrator\\Documents\\visual studio 2015\\Projects\\opencvSemple\\ORLface2";
+	//strcat(str, "\\*");
+	loadImageAndLabel(str,images,labels);
+	system("pause");
+}
 

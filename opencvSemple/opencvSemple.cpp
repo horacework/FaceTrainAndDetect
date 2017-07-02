@@ -35,6 +35,9 @@ int main()
 	case 3:
 		f2->Action();
 		break;
+	case 4:
+		f2->Test();
+		break;
 	default:
 		break;
 	}
