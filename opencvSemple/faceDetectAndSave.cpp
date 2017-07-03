@@ -3,6 +3,7 @@
 
 using namespace std;
 using namespace cv;
+using namespace face;
 
 /** Function Headers */
 //void detectAndDisplay(Mat frame);
@@ -11,45 +12,59 @@ using namespace cv;
 String face_cascade_name = "../model/haarcascade_frontalface_default.xml";
 String eyes_cascade_name = "../model/haarcascade_eye_tree_eyeglasses.xml";
 String plate_cascade_name = "../model/haarcascade_russian_plate_number.xml";
+String personModel = "MyFaceFisherModel.xml";
 
 CascadeClassifier face_cascade;   //定义人脸分类器  
 CascadeClassifier eyes_cascade;   //定义人眼分类器  
-CascadeClassifier plate_cascade;   //定义人眼分类器  
+CascadeClassifier plate_cascade;   //定义车牌分类器
+
+Ptr<FaceRecognizer> modelPCA;
 
 String window_name = "Capture - Face detection";
+
+string int2str(const int &int_temp)
+{
+	stringstream stream;
+	stream << int_temp;
+	return stream.str();
+}
 
 /** @function main */
 int faceDetectAndSave::action()
 {
-	Mat frame = imread("C:/Users/Administrator/Desktop/006.jpg");
+	//Mat frame = imread("C:/Users/Administrator/Desktop/006.jpg");
 
-	//VideoCapture capture;  
-	//Mat frame;  
+	namedWindow(window_name);
+
+	VideoCapture capture;  
+	Mat frame;  
 
 	//-- 1. Load the cascades  
 	if (!face_cascade.load(face_cascade_name)) { printf("--(!)Error loading face cascade\n"); return -1; };
-	if (!eyes_cascade.load(eyes_cascade_name)) { printf("--(!)Error loading eyes cascade\n"); return -1; };
+	//if (!eyes_cascade.load(eyes_cascade_name)) { printf("--(!)Error loading eyes cascade\n"); return -1; };
 
-	if (!plate_cascade.load(plate_cascade_name)) { printf("--(!)Error loading eyes cascade\n"); return -1; };
+	//if (!plate_cascade.load(plate_cascade_name)) { printf("--(!)Error loading eyes cascade\n"); return -1; };
+	modelPCA = createEigenFaceRecognizer();
+	modelPCA->load(personModel);
 
 	//-- 2. Read the video stream  
-	//capture.open(0);  
-	//if (!capture.isOpened()) { printf("--(!)Error opening video capture\n"); return -1; }  
+	capture.open(0);  
+	if (!capture.isOpened()) { printf("--(!)Error opening video capture\n"); return -1; }  
 
-	//while (capture.read(frame))  
-	//{  
-	//  if (frame.empty())  
-	//  {  
-	//      printf(" --(!) No captured frame -- Break!");  
-	//      break;  
-	//  }  
+	while (capture.read(frame))  
+	{  
+	  if (frame.empty())  
+	  {  
+	      printf(" --(!) No captured frame -- Break!");  
+	      break;  
+	  }  
 
 	//-- 3. Apply the classifier to the frame  
-	detectAndDisplay(frame);
-
-	int c = waitKey(0);
-	if ((char)c == 27) { return 0; } // escape  
-									 //}  
+	//detectAndDisplay(frame);
+		detectAndVerifyModel(frame);
+		int c = waitKey(20);
+		if ((char)c == 27) { return 0; } // escape  
+	}
 
 	return 0;
 }
@@ -61,11 +76,11 @@ void faceDetectAndSave::detectAndDisplay(Mat frame)
 	Mat frame_gray;
 
 	cvtColor(frame, frame_gray, COLOR_BGR2GRAY);
-	//equalizeHist(frame_gray, frame_gray);
+	equalizeHist(frame_gray, frame_gray);
 
 	//-- Detect faces  
-	//face_cascade.detectMultiScale(frame_gray, faces, 1.1, 3, CV_HAAR_DO_ROUGH_SEARCH, Size(70, 70), Size(1000, 1000));
-	plate_cascade.detectMultiScale(frame_gray, faces, 1.1, 3, CV_HAAR_DO_ROUGH_SEARCH, Size(10, 10), Size(1000, 1000));
+	face_cascade.detectMultiScale(frame_gray, faces, 1.1, 3, CV_HAAR_DO_ROUGH_SEARCH, Size(70, 70), Size(1000, 1000));
+
 
 	for (size_t i = 0; i < faces.size(); i++)
 	{
@@ -90,7 +105,50 @@ void faceDetectAndSave::detectAndDisplay(Mat frame)
 		}
 	}
 	//-- Show what you got  
-	namedWindow(window_name);
+	//namedWindow(window_name);
+	imshow(window_name, frame);
+}
+
+void faceDetectAndSave::detectAndVerifyModel(Mat frame)
+{
+	std::vector<Rect> faces;
+	Mat frame_gray;
+
+	cvtColor(frame, frame_gray, COLOR_BGR2GRAY);
+	//equalizeHist(frame_gray, frame_gray);
+
+	//-- Detect faces  
+	face_cascade.detectMultiScale(frame_gray, faces, 1.1, 3, CV_HAAR_DO_ROUGH_SEARCH, Size(70, 70), Size(1000, 1000));
+
+
+	for (size_t i = 0; i < faces.size(); i++)
+	{
+		//Point center(faces[i].x + faces[i].width / 2, faces[i].y + faces[i].height / 2);  
+		//ellipse(frame, center, Size(faces[i].width / 2, faces[i].height / 2), 0, 0, 360, Scalar(255, 0, 255), 4, 8, 0);  
+		rectangle(frame, faces[i], Scalar(255, 0, 0), 2, 8, 0);
+
+		Mat faceROI = frame_gray(faces[i]);
+		std::vector<Rect> eyes;
+		Mat faceTest;
+
+		int predictID = 100;
+		if (faceROI.rows >= 120)
+		{
+			resize(faceROI, faceTest, Size(92, 112));
+		}
+		if (!faceTest.empty())
+		{
+			//测试图像应该是灰度图  
+			predictID = modelPCA->predict(faceTest);
+		}
+		if (predictID != 100)
+		{
+			putText(frame, int2str(predictID), Point(faces[i].x, faces[i].y), FONT_HERSHEY_COMPLEX, 1, Scalar(0, 0, 255));
+		}
+		
+	}
+	//-- Show what you got  
+	//namedWindow(window_name);
 	imshow(window_name, frame);
 }
 
@@ -103,3 +161,4 @@ faceDetectAndSave::faceDetectAndSave()
 faceDetectAndSave::~faceDetectAndSave()
 {
 }
+

@@ -152,6 +152,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="faceDetectAndSave.h" />
+    <ClInclude Include="facialSampleCollect.h" />
     <ClInclude Include="modelTrain.h" />
     <ClInclude Include="openImage.h" />
     <ClInclude Include="stdafx.h" />
@@ -159,6 +160,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="faceDetectAndSave.cpp" />
+    <ClCompile Include="facialSampleCollect.cpp" />
     <ClCompile Include="modelTrain.cpp" />
     <ClCompile Include="opencvSemple.cpp" />
     <ClCompile Include="openImage.cpp" />
