@@ -243,7 +243,11 @@ ModelManifest.xml
 
 # examples image
 ORLface/
-ORLface2/
+ORLfaceTest/
+ORLfaceTrain/
 
 # XML models
-opencvSemple/MyFacePCAModel.xml
+opencvSemple/*.xml
+
+# examples dir
+train/

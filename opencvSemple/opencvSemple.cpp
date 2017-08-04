@@ -21,9 +21,10 @@ int main()
 
 	cout << "1 : 简单图片显示					-- openImage.cpp"			<<endl;
 	cout << "2 : xml模型应用					-- faceDetectAndSave.cpp"	<<endl;
-	cout << "3 : xml模型训练					-- modelTrain.cpp "			<<endl;
-	cout << "4 : 人脸模型应用（读取摄像头帧）	-- faceDetectAndSave.cpp "	<<endl;
-	cout << "5 : 人脸样本采集（读取摄像头帧）	-- facialSampleCollect.cpp "<<endl;
+	cout << "3 : xml人脸模型训练				-- modelTrain.cpp "			<<endl;
+	cout << "4 : xml人脸模型测试				-- modelTrain.cpp "			<< endl;
+	cout << "5 : 人脸模型应用（读取摄像头帧）	-- faceDetectAndSave.cpp "	<<endl;
+	cout << "6 : 人脸样本采集（读取摄像头帧）	-- facialSampleCollect.cpp "<<endl;
 	cout << "请选择 : ";
 	
 	cin >> inputCmd;
@@ -43,13 +44,16 @@ int main()
 		f2->Test();
 		break;
 	case 5:
+		f1->action();
+		break;
+	case 6:
 		f3->Action();
 		break;
 	default:
 		break;
 	}
 
-	waitKey(0);
+	system("pause");
 
 	return 0;
 }

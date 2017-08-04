@@ -51,7 +51,7 @@ void readDirImageAndLabel (const string& path, string label, vector<Mat>& images
 	else {
 		while (_findnext(lf, &file) == 0) {
 			//输出文件名
-			if (strcmp(file.name, ".") != 0 && strcmp(file.name, "..") != 0) {
+			if (strcmp(file.name, ".") != 0 && strcmp(file.name, "..") != 0 && strchr(file.name,'.bmp') != NULL){
 				cout <<"已载入文件： "<< file.name << endl;
 				images.push_back(imread(tempPath.assign(path).append("\\").append(label).append("\\").append(file.name), 0));
 				labels.push_back(atoi(label.c_str()));
@@ -89,8 +89,8 @@ void loadImageAndLabel(const string& path, vector<Mat>& images, vector<int>& lab
 
 void modelTrain::Action()
 {
-	string fn_csv = "C:/Users/Administrator/Documents/visual studio 2015/Projects/opencvSemple/ORLface/at.txt";
-	string str = "C:\\Users\\Administrator\\Documents\\visual studio 2015\\Projects\\opencvSemple\\ORLface2";
+	//string fn_csv = "C:/Users/Administrator/Documents/visual studio 2015/Projects/opencvSemple/ORLface/at.txt";
+	string str = "C:\\Users\\Administrator\\Documents\\visual studio 2015\\Projects\\opencvSemple\\train";
 	vector<Mat> images;
 	vector<int> labels;
 	//用clock()来计时  毫秒    
@@ -103,7 +103,7 @@ void modelTrain::Action()
 	}
 	catch (cv::Exception& e)
 	{
-		cerr << "Error opening file \"" << fn_csv << "\". Reason: " << e.msg << endl; 
+		cerr << "Error opening file \""  << "\". Reason: " << e.msg << endl; 
 		exit(1);
 	}
 	
@@ -114,7 +114,7 @@ void modelTrain::Action()
 	clockBegin = clock();	
 	Ptr<FaceRecognizer> model = createEigenFaceRecognizer();	// Eigenfaces
 	model->train(images, labels);
-	model->save("MyFacePCAModel.xml");
+	model->save("MyFacePCAModel1.xml");
 	clockEnd = clock();
 	printf("Eigenfaces人脸模型训练结束   用时 %d ms \n", clockEnd - clockBegin);
 
@@ -122,7 +122,7 @@ void modelTrain::Action()
 	clockBegin = clock();
 	Ptr<FaceRecognizer> model1 = createFisherFaceRecognizer();	// Fisherfaces
 	model1->train(images, labels);
-	model1->save("MyFaceFisherModel.xml");
+	model1->save("MyFaceFisherModel1.xml");
 	clockEnd = clock();
 	printf("Fisherfaces人脸模型训练结束   用时 %d ms \n", clockEnd - clockBegin);
 
@@ -130,7 +130,7 @@ void modelTrain::Action()
 	clockBegin = clock();
 	Ptr<FaceRecognizer> model2 = createLBPHFaceRecognizer();	// 局部二值模式直方图 (LBPH)
 	model2->train(images, labels);
-	model2->save("MyFaceLBPHModel.xml");
+	model2->save("MyFaceLBPHModel1.xml");
 	clockEnd = clock();
 	printf("Fisherfaces人脸模型训练结束   用时 %d ms \n", clockEnd - clockBegin);
 
@@ -159,12 +159,53 @@ void modelTrain::Action()
 	//waitKey(0);
 }
 
+void readDirImageToPredict(const string& path, Ptr<FaceRecognizer> model) {
+	_finddata_t file;
+	long lf;
+	string p, tempPath;
+	if ((lf = _findfirst(p.assign(path).append("\\*").c_str(), &file)) == -1) {
+		cout << path << " not found!!!" << endl;
+	}
+	else {
+		while (_findnext(lf, &file) == 0) {
+			//输出文件名
+			if (strcmp(file.name, ".") != 0 && strcmp(file.name, "..") != 0 && strchr(file.name, '.bmp') != NULL) {
+				cout << "已载入文件： " << file.name << "=======";
+				cout << "预测结果：" <<model->predict(imread(tempPath.assign(path).append("\\").append(file.name), 0))<<endl;
+				
+				//labels.push_back(atoi(label.c_str()));
+			}
+		}
+	}
+	_findclose(lf);
+}
+
 void modelTrain::Test() {
-	vector<Mat> images;
-	vector<int> labels;
-	string str = "C:\\Users\\Administrator\\Documents\\visual studio 2015\\Projects\\opencvSemple\\ORLface2";
-	//strcat(str, "\\*");
-	loadImageAndLabel(str,images,labels);
-	system("pause");
+
+	string FaceTestPath = "C:\\Users\\Administrator\\Documents\\visual studio 2015\\Projects\\opencvSemple\\ORLfaceTest";
+	String MyFaceFisherModel = "MyFaceFisherModel.xml";
+	String MyFacePCAModel = "MyFacePCAModel.xml";
+	String MyFaceLBPHModel = "MyFaceLBPHModel.xml";
+
+	Ptr<FaceRecognizer> FisherModel;
+	Ptr<FaceRecognizer> PCAModel;
+	Ptr<FaceRecognizer> LBPHModel;
+
+	FisherModel = createFisherFaceRecognizer();
+	FisherModel->load(MyFaceFisherModel);
+	PCAModel = createEigenFaceRecognizer();
+	PCAModel->load(MyFacePCAModel);
+	LBPHModel = createLBPHFaceRecognizer();
+	LBPHModel->load(MyFaceLBPHModel);
+
+	cout << "==========开始测试人脸Fisher模型==========" << endl;
+	readDirImageToPredict(FaceTestPath, FisherModel);
+
+	cout << "==========开始测试人脸PCA模型==========" << endl;
+	readDirImageToPredict(FaceTestPath, PCAModel);
+
+	cout << "==========开始测试人脸LBPH模型==========" << endl;
+	readDirImageToPredict(FaceTestPath, LBPHModel);
+
 }
 

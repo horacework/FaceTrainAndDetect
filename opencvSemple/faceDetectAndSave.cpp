@@ -12,7 +12,7 @@ using namespace face;
 String face_cascade_name = "../model/haarcascade_frontalface_default.xml";
 String eyes_cascade_name = "../model/haarcascade_eye_tree_eyeglasses.xml";
 String plate_cascade_name = "../model/haarcascade_russian_plate_number.xml";
-String personModel = "MyFaceFisherModel.xml";
+String personModel = "MyFaceFisherModel1.xml";
 
 CascadeClassifier face_cascade;   //定义人脸分类器  
 CascadeClassifier eyes_cascade;   //定义人眼分类器  
@@ -118,37 +118,40 @@ void faceDetectAndSave::detectAndVerifyModel(Mat frame)
 	//equalizeHist(frame_gray, frame_gray);
 
 	//-- Detect faces  
-	face_cascade.detectMultiScale(frame_gray, faces, 1.1, 3, CV_HAAR_DO_ROUGH_SEARCH, Size(70, 70), Size(1000, 1000));
+	face_cascade.detectMultiScale(frame_gray, faces, 1.1, 3, CV_HAAR_DO_ROUGH_SEARCH, Size(100, 100), Size(1000, 1000));
 
 
 	for (size_t i = 0; i < faces.size(); i++)
 	{
-		//Point center(faces[i].x + faces[i].width / 2, faces[i].y + faces[i].height / 2);  
-		//ellipse(frame, center, Size(faces[i].width / 2, faces[i].height / 2), 0, 0, 360, Scalar(255, 0, 255), 4, 8, 0);  
 		rectangle(frame, faces[i], Scalar(255, 0, 0), 2, 8, 0);
 
 		Mat faceROI = frame_gray(faces[i]);
 		std::vector<Rect> eyes;
 		Mat faceTest;
 
-		int predictID = 100;
-		if (faceROI.rows >= 120)
+		int predictID = -1;
+		double curConfidence;
+		if (faceROI.rows >= 100)
 		{
-			resize(faceROI, faceTest, Size(92, 112));
+			resize(faceROI, faceTest, Size(100, 100));
 		}
 		if (!faceTest.empty())
 		{
 			//测试图像应该是灰度图  
-			predictID = modelPCA->predict(faceTest);
+			modelPCA->predict(faceTest,predictID,curConfidence);
 		}
-		if (predictID != 100)
+		cout << "当前预测标签为：" <<predictID <<" ---- ";
+		cout << "当前预测标签信任度：" << curConfidence << endl;
+		if (predictID != -1 && curConfidence < 1000)
 		{
 			putText(frame, int2str(predictID), Point(faces[i].x, faces[i].y), FONT_HERSHEY_COMPLEX, 1, Scalar(0, 0, 255));
 		}
+
+		//预测值归零
+		predictID = -1;
 		
 	}
-	//-- Show what you got  
-	//namedWindow(window_name);
+	//-- Show what you got
 	imshow(window_name, frame);
 }
 
